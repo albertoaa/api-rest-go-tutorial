@@ -3,18 +3,13 @@ package main
 import (
 	"encoding/json"
 	"fmt"
+	"log"
 	"net/http"
 
 	"github.com/gorilla/mux"
 	"gopkg.in/mgo.v2"
 	// "gopkg.in/mgo.v2/bson"
 )
-
-var movies = Movies{
-	Movie{"Sin limites", 2013, "Desconocido"},
-	Movie{"Batman Begins", 1999, "Scorcesse"},
-	Movie{"A todo gas", 2005, "Juan Antonio"},
-}
 
 func getSession() *mgo.Session {
 	session, err := mgo.Dial("mongodb://localhost")
@@ -37,8 +32,18 @@ func Contact(w http.ResponseWriter, r *http.Request) {
 }
 
 func MoviesList(w http.ResponseWriter, r *http.Request) {
+	var results []Movie
+	err := collection.Find(nil).All(&results)
 
-	json.NewEncoder(w).Encode(movies)
+	if err != nil {
+		log.Fatal(err)
+		return
+	} else {
+		fmt.Println("Resultados: ", results)
+	}
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(200)
+	json.NewEncoder(w).Encode(results)
 }
 
 func MovieShow(w http.ResponseWriter, r *http.Request) {
@@ -66,7 +71,7 @@ func MovieAdd(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(500)
 		return
 	}
-	json.NewEncoder(w).Encode(movie_data)
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(200)
+	json.NewEncoder(w).Encode(movie_data)
 }
