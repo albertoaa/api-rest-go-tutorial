@@ -33,7 +33,7 @@ func Contact(w http.ResponseWriter, r *http.Request) {
 
 func MoviesList(w http.ResponseWriter, r *http.Request) {
 	var results []Movie
-	err := collection.Find(nil).All(&results)
+	err := collection.Find(nil).Sort("-_id").All(&results)
 
 	if err != nil {
 		log.Fatal(err)
